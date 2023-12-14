@@ -1,0 +1,88 @@
+Nathan Pacey 18njp
+Ashley Robb 19ar42
+
+Lab 4 Testing Explanation:
+
+ -- Test 1. Inital testing -- 
+Simple test to see if the code was properly fetching the current processes and associated user Ids; written to init_test.txt.
+
+ -- Test 2. Comparison with ps command -- 
+First removed the process directory echo to clean up output then ran lab script 
+    ./ps.sh > t2lab.txt 
+To save the scripts output to the file t2lab.txt 
+Then ran 
+    ps -eo pid,user > t2system.txt
+To see the actual processes with their ID and usernames to compare.
+I found it hard to visually see the differences in the files besides the indenting.
+So I wrote a script `find_unique.sh` to compare the output of the lab script vs ps command. The ouput of the new script showed the differences:
+`
+PID 268560 with username 18njp is unique to t2system.txt
+PID 659 has different usernames: daemon vs root
+PIDs unique to t2lab.txt:
+265922 18njp
+`
+Can see each has a unique process that represents its' self (the process currently running). We know this because we can run the shell script multiple times and a new unique process will be added while the old process will not be there. 
+example running ./ps.sh | grep 265922 after that process has already run will find nothing, same idea with ps -eo pid,user | grep 268560. Makes sense that they will each have one unique process representing themselves.
+
+The only other difference in processes is PID 659 which has the username daemon in the system file but root in the lab file. To figure out this difference we need to see how ps -eo is fetching the UID compared to our script. 
+from running:
+grep '^Uid:' /proc/659/status 
+Uid:    0       1       1       1
+
+We can see the cause of the difference:
+These outputs in order are:
+Real user ID (RUID): This is the original owner of the process. In your case, it's 0, which means the process was started by the root user.
+Effective user ID (EUID): This is used when determining the access rights for the process. Here it's 1, which typically corresponds to the daemon user.
+Saved user ID (SUID): This is saved by the system for things like when a process that has dropped privileges needs to regain them. Again, it's 1 here.
+Filesystem user ID (FSUID): This is used explicitly by the kernel for filesystem checks. It's also 1.
+
+The different in UID is because ps -eo is likely showing the EUID, which is 1 (daemon), while the script is showing the RUID, which is 0 (root).
+
+ -- Test 3. Running with flags -- 
+To check if the script works for each option ran the script passing the options.
+Just RSS: ./ps -rss > t3lab_rss.txt
+This properly displayed the RSS values along side the PID and username.
+
+Can compare to ps -eo pid,user,rss > t3system_rss.txt
+
+which shows similar differences based on the new processes running and the method of fetching username/UIDs using the same script:
+Comparing PIDs and usernames:
+PID 474 has different usernames: systemd-timesync vs systemd+
+PID 530 has different usernames: systemd-network vs systemd+
+PID 542 has different usernames: systemd-resolve vs systemd+
+PID 635 has different usernames: messagebus vs message+
+PID 659 has different usernames: root vs daemon
+
+PIDs unique to t3lab_rss.txt:
+235975 root       0
+286556 18njp      516
+286574 18njp      3576
+
+PIDs unique to t3system_rss.txt:
+289247 18njp      580
+289250 18njp     3232
+
+the same process was done for -comm
+./ps.sh -rss -comm > t4_rss_comm.txt
+which also displayed the correct info for comm
+a comparison was also done to:
+ ps -eo pid,user,rss,comm > t4system_rss_comm.txt
+to ensure cosistency
+
+Finally all the flags were tested:
+this time with the -command flag for consitency:
+ ./ps.sh -rss -command -group > t5lab_all.txt
+Can also compare to the ps command:
+ ps -eo pid,user,group,rss,comm > t5system_all.txt
+
+All flags seem to be working properly with few but explainable differences to the ps command
+
+  -- Test 4. error checking -- 
+Testing wether the error prints work correctly.
+First supplying invalid flag:
+ ./ps.sh -rss -command -test
+Error: -test is not recognized!
+
+Next testing that -comm and -command are mutually exclusive.
+./ps.sh -rss -command -comm
+Error: -comm and -command flags are mutually exclusive.

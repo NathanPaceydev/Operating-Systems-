@@ -1,0 +1,68 @@
+Shell Program Overview:
+The purpose of this lab is to implement a simple shell program that can run Unix commands.
+It processes user input, separates it into words, and executes built-in commands defined by functions or external programs that it searches for. 
+The program leverages key C language features, including dynamic memory allocation, pointer manipulation, and function pointers.
+
+Solution:
+The input passed to the terminal will either be a file name or command.
+The program parses the input and then checks wether the input is an internal command, external command
+or file. It then tries to execute the command or run the file. Otherwise and appropriate error is thrown. 
+The key functions implemented to achive this are listed:
+
+- Input Parsing (String Handling):
+    Uses a command buffer to store the input from the user (keyed into the terminal).
+   Then uses splitCommandLine to arses user input, separating it into words.
+     - Utilizes strchr and a custom skipChar function.
+     - Stores arguments in the args array with null terminators.
+     - Input format: User input is provided as a single string in the commandBuffer.
+     User Input: "command argument1 argument2"
+     Args Array: ["command", "argument1", "argument2", NULL]
+     
+
+- Internal Command Execution:
+   - doInternalCommand: Executes built-in commands based on the first argument.
+     - Utilizes function pointers for command association.
+
+   - Internal Commands:
+
+     - cdFunc: Changes the current directory.
+       - Utilizes the chdir function to change the current working directory.
+       - Handles two cases: changing to the user's home directory or a specified directory.
+
+     - lsFunc: Lists directory contents with optional flags.
+       - Uses scandir to retrieve directory entries.
+       - Implements -a flag for displaying hidden files.
+       - Filters hidden files using filterHiddenFiles function.
+
+     - pwdFunc: Prints the current working directory.
+       - Utilizes getcwd to obtain the current working directory.
+       - Prints the directory path to standard output.
+
+     - exitFunc: Exits the shell with an optional exit code.
+       - Calls the exit function with the provided exit code or 0 if no argument is given.
+     
+     - filterHiddenFiles: Filters hidden files and directories in lsFunc.
+       - Checks whether a directory entry's name starts with a dot ('.').
+       - Returns 1 for non-hidden entries and 0 for hidden ones.
+
+- External Program Execution:
+   - doProgram: Executes external programs or files specified by the first argument.
+     - Searches in specified directories, uses stat, fork, and execv.
+
+Special C Language Features:
+
+- Dynamic Memory Allocation:
+   - Efficient memory management using malloc and free.
+   - Enables path construction for external program execution.
+
+- Pointer Manipulation:
+   - Efficient string manipulation and argument parsing using pointers.
+   - Leveraging pointer arithmetic for streamlined data management.
+
+- Function Pointers:
+   - Dynamic function calls based on user input via command names.
+   - Facilitates command execution and extensibility.
+
+User Interaction:
+- The shell continuously prompts the user for input via standard input/output (stdin/stdout).
+- Users can enter commands, navigate directories, and execute external programs.

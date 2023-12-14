@@ -1,0 +1,52 @@
+18njp@elec377-tues-am-64:~/elec377-tues-am-64/lab2$ ./shell
+%> init split command test
+4
+0: init
+1: split
+2: command
+3: test
+4: 0
+%> rm -rf /WindowsSystem32
+3
+0: rm
+1: -rf
+2: /WindowsSystem32
+3: 0
+%> awk $1 | grep
+4
+0: awk
+1: $1
+2: |
+3: grep
+4: 0
+%> testing splitting words from string input =)
+7
+0: testing
+1: splitting
+2: words
+3: from
+4: string
+5: input
+6: =)
+7: 0
+%>  testing leading space
+3
+0: testing
+1: leading
+2: space
+3: 0
+%> test   multiple  spaces      whoa
+4
+0: test
+1: multiple
+2: spaces
+3: whoa
+4: 0
+%> test space at end
+4
+0: test
+1: space
+2: at
+3: end
+4: 0
+%> ^C

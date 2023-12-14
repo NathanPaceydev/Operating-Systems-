@@ -1,0 +1,9 @@
+Comparing PIDs and usernames:
+PID 268560 with username 18njp is unique to t2system.txt
+PID 659 has different usernames: daemon vs root
+PIDs unique to t2lab.txt:
+265922 18njp
+ShowExecComm: no
+ShowGroupID: no
+ShowRSS: no
+ShowStartComm: no

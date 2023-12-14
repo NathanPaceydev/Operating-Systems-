@@ -1,0 +1,57 @@
+Nathan Pacey 18njp
+Ashley Robb 19ar42
+
+Lab 4 Solution Explanation:
+
+The lab's objective is to create a Bash script that displays information about
+running processes on a Linux system. 
+The script leverages various Bash commands and utilities to extract and present this data. 
+
+Phase 1: Parse Command Line Arguments
+Variables are initialized to "no" (ShowRSS, ShowExecComm, ShowStartComm, ShowGroupID) 
+to indicate which additional information will not be shown by default.
+A while loop with shift processes each command-line argument. 
+The shift command shifts the positional parameters to the left, effectively moving through each argument.
+Conditional if/elif statements set the corresponding flags to "yes" 
+if the script is called with -rss, -comm, -command, or -group.
+An error message is printed using echo and the script exits with exit 1 if an unrecognized argument is encountered.
+The script checks for mutually exclusive flags (-comm and -command) and exits if both are set, 
+as they cannot be used together, to prevent conflicting output.
+The status of each flag is echoed to the console for debugging purposes, 
+allowing the user to verify the script's behavior.
+
+Phase 2: Iterate Over Process Directories
+A temporary file is created (tempFile) and any existing file with the same name is removed 
+using rm -f to ensure a clean state.
+A for loop iterates over directories in /proc that match the pattern /proc/[0-9]*,
+ which are directories named with numeric PIDs.
+The existence of each directory is verified with [[ -d $p ]] to ensure the 
+process hasn't terminated since the loop started.
+
+Phase 3: Extract and Display Process Information
+The script extracts process information from the status and cmdline files within each 
+process directory using grep for pattern matching, sed for stream editing, 
+and awk for pattern scanning and processing.
+The cmdline file's null characters are replaced with spaces using tr 
+to make the command line human-readable.
+If cmdline is empty, indicating no command line was used, the process name is used as a fallback.
+Default values are set for variables like rss to ensure they have a value 
+even if the corresponding information is not available.
+Numeric user and group IDs are translated to human-readable names by searching 
+/etc/passwd and /etc/group with grep and extracting the relevant field with cut.
+The printf command formats and writes the process information to the temporary file, 
+ensuring consistent column widths and alignment.
+
+Phase 4: Output Formatting
+A header line is printed to the console with printf, including titles for each column. 
+The header changes dynamically based on the flags set by the user.
+The sort command organizes the output by PID, and awk is used to print each line of the temporary file. 
+The -v option in awk passes the flag variables to the awk script, allowing it to conditionally print additional information.
+
+Phase 5: Cleanup
+The temporary file is removed using rm -f to prevent clutter and ensure that no temporary 
+data persists after the script completes.
+Throughout the script, careful attention is given to ensure that the output is both accurate 
+and formatted in a user-friendly manner. 
+The script demonstrates a practical application of shell scripting for system administration tasks, 
+combining file manipulation, text processing, and conditional logic based on user input.

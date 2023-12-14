@@ -1,0 +1,28 @@
+Script started on 2023-10-06 13:22:05-04:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="76" LINES="39"]
+]0;18njp@elec377-tues-am-64: ~/elec377-tues-am-64/lab2[01;32m18njp@elec377-tues-am-64[00m:[01;34m~/elec377-tues-am-64/lab2[00m$ ./shell
+%> pwd
+/home/18njp/elec377-tues-am-64/lab2
+%> pwd here
+/home/18njp/elec377-tues-am-64/lab2
+%> ls
+testExplanation.txt hello.c testComparisonShell.txt initTestsplitCommandLine.txt testSplitCommand.txt Makefile testAdditionalCommands.txt shell.c testEmbeddedCommands.txt shell solutionExplanation.txt hello testFileCommands.txt 
+%> ls -a
+testExplanation.txt . hello.c testComparisonShell.txt initTestsplitCommandLine.txt testSplitCommand.txt .. Makefile testAdditionalCommands.txt shell.c testEmbeddedCommands.txt shell solutionExplanation.txt hello testFileCommands.txt 
+%> ls -nota
+Error: ls passed with argument besides -a
+%> cd ..
+%> ls
+lab0 lab1 lab2 
+%> pwd
+/home/18njp/elec377-tues-am-64
+%> cd lab2
+%> cd notadir
+Did not successfully change current directory
+%> cd /proc/bin            cd
+%> pwd
+/home/18njp
+%> exit
+]0;18njp@elec377-tues-am-64: ~/elec377-tues-am-64/lab2[01;32m18njp@elec377-tues-am-64[00m:[01;34m~/elec377-tues-am-64/lab2[00m$ exit
+exit
+
+Script done on 2023-10-06 13:24:17-04:00 [COMMAND_EXIT_CODE="0"]

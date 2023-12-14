@@ -1,0 +1,9 @@
+Lab 2 Marking 
+Mark: 9.5/10 
+
+Documentation: 3.5/3.5
+- Very thorough and very well done! :)
+Testing Docs: 3.5/3.5
+Code Correctness: 1/1.5
+- exit function not checking if args[1] is a number if nargs != 1
+Code Clarity (organization): 1.5/1.5

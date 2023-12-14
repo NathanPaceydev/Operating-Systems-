@@ -1,0 +1,28 @@
+Testing Explanation:
+To ensure the programs operation several tests were done throughout the implmentation of the program.
+First we tested the splitCommandLine function by running ./shell and printing the contents of the args array,
+this displayed each word on its own line with a number beside it ending with the null char.
+This test can be seen in initTestsplitCommandLine.txt
+
+After the program was completed and functional we tested splitCommandLine again but this time using the script command.
+In both tests leading spaces, multiple spaces and ending spaces were added to the user input to ensure the script properly parsed the commands.
+
+next the embedded commands were tested usign the script command and stored in testEmbeddedCommands.txt.
+Started by using pwd to print the current working directory. Then used ls to list the contents of the current directory. Then used ls -l to list the contents including the hidden files.
+Then passed ls with a parameter that is not -a so it produced the appriopriate error.
+Next tested cd .. and moved up a directory, checked this by listing the contents of the new directory.
+cd back into lab 2 and then passed cd a fake directory which produced the apprioriate error.
+Then ran cd with no parameter which changed directory to the users home; checked this using pwd.
+Then exited the program using the exit function.
+
+A comparison of the shell and the defualt command line interface was done and can be seen in testComparisonShell.txt.
+In this many of the embedded commands are used in similar ways but we can see the limitations on the shell program compared to the bash terminal.
+For example ls -l lists more information about each file including read/write permision while using the bash terminal.
+
+To test that the program could properly interact with files several commands were run which can be seen in testFileCommands.txt
+This includes running hello.c by typing hello in the terminal, which displayed Hello, 18njp (my username).
+The addition of directories and files and their removals using mkdir, touch and rm -r and rm respectively.
+
+Finally another test was done to test some external commands including lscpu, uptime and other commands in /usr/bin as seen in testAdditionalCommands.txt.
+Using the man command was also checked which displayed the manual of a command passed to it.
+There was also several examples throughout each testing where the terminal was passed incorrect commands which it then displayed the appriopriate error message.

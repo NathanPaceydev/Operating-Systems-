@@ -1,0 +1,13 @@
+Nathan Pacey 18njp
+Ashley Robb 19ar42
+
+Lab 1 Testing Description:
+
+The testing of this lab was fairly minimal. It consited of writing the outputs of the /proc/lab1 file using varios commands (dd,more & cat) to out files lab1.out1, lab1.out2 & lab1.out3.
+The difference of these outputs can be seen in the Name field as it extracts the command used to call the module and the PID number.
+
+note that the files were written using the redirect command as such: cat /proc/lab1 > lab1.out1
+
+The module was also run as root by logging in as root using the sudo su - command and then running the same cat command:
+cat /proc/lab1 > lab1.outroot1
+note that as root the UID's and GID's were set to zero.

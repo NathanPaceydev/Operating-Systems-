@@ -1,0 +1,130 @@
+Nathan Pacey 18njp
+Ashley Robb 19ar42
+
+Lab 5 Solution Explanation:
+The objective of this lab is to explore and understand the stack overflow vulnerability, 
+a prevalent security issue in software applications. This exercise involves conducting controlled experiments to probe 
+and assess the security robustness of applications by attempting to exploit this vulnerability.
+
+Objective 1: Compromising the Server
+The first step involved obtaining environment variables from the server, which contained an encrypted password.
+ The attack was a network-based buffer overflow, 
+ injecting custom shellcode into the server running on a virtual machine​​.
+
+The approach taken involved modifying selfcomp.c to include a character array (buffer) and two global variables. 
+The buffer was systematically overflowed using a string (compromise1), 
+allowing for control over the return address on the stack.
+ By carefully adjusting the length of compromise1, 
+ the program was made to crash, enabling the examination of core dumps for determining the required length 
+ of the string and the location of the return address​​.
+The correct size was determined when "MNOPWXYZ" in little endian hex 0x5a595857504f4e4d seen in rbp
+By using gdb the register information can be found including the stack pointer at the desired address.
+then the environ variable can be found using the command: print &environ (see Testing-Explanation).
+The size of the compromise1 string allowed us to find the length of the exploit code that would 
+properly insert and execute the shell code into the stack.
+
+-- Overview of how padding NOPs and return addresses was found. --
+Test 1: Buffer Overflow in selfcomp
+Objective: To cause a buffer overflow in selfcomp and determine the required buffer size (compromise1) to trigger a segmentation fault.
+Process:
+Incrementally filled the compromise1 array in selfcomp with 'x's.
+Determined that an array size of 160 characters triggers a segmentation fault in selfcomp.
+Used GDB to inspect the core dump, verifying that compromise1 overwrites the saved base pointer (rbp) on the stack with the intended marker value, indicating a successful buffer overflow.
+Located the environ variable address using GDB.
+Test 2: Shell Code Execution in selfcomp
+Objective: To execute custom shell code within selfcomp and print the environment variables.
+Process:
+Wrote NASM assembly code (exploit.o) and listed the code in exploit.lst as hexadecimal.
+Inserted the hexadecimal code into the compromise array and added sufficient padding (NOPs) to reach the size of compromise1.
+Determined the return address based on the shell code size and the rsp value obtained from GDB return = (rsp-code size).
+The shell code executed successfully, printing out the environment variables.
+
+Test 3: Buffer Overflow in client.c
+Objective: To replicate the buffer overflow process in client.c and interact with the quoteserv.
+Process:
+Filled in compromise1 of client.c with 'x's and ran quoteserv and client in separate terminals to find the correct buffer size.
+Found that a buffer size of 226 characters caused a return code of 139 from quoteserv, indicating a successful buffer overflow.
+Used GDB to find the rsp value, helping to determine the size of the compromise array.
+Test 4: Shell Code in client.c
+Objective: To insert the same shell code into client.c and adjust padding for the new stack size.
+Process:
+Adjusted the NOP padding and updated the return address to match the new stack configuration.
+Added an exit sequence (0x0A,0x00) to the end of the shell code for clean termination.
+Successfully printed environment variables after running client and quoteserv on port 10000.
+
+-- The Exploit ---
+The exploit.nasm file contains NASM (Netwide Assembler) syntax assembly code for a 64-bit environment. 
+The exploit.nasm script is designed to exploit a stack overflow vulnerability. 
+By manipulating the stack and CPU registers, 
+it executes the /bin/env command to reveal the environment variables of the compromised process, 
+which includes the target MD5 hash.
+
+Here's how the code works:
+Clearing Registers:
+The script begins by clearing essential CPU registers (rax, rdi, rsi, rdx) using the xor instruction.
+This is a common practice to ensure that these registers don't contain any unpredictable data.
+
+Preparing the Command String:
+The script then sets up the command string "/bin/env" on the stack. 
+This Unix command is used to print environment variables.
+It pushes a null byte (0x00, represented by rax which was zeroed out) to the stack to serve as a string terminator.
+The mov instruction places the reversed bytes of "/bin/env" into rdi, and then it's pushed onto the stack.
+
+Setting up Command Arguments (argv):
+The script prepares the argument vector (argv) for the execve syscall. 
+It involves pushing the address of the command string (now in rsp) onto the stack.
+Manipulating rdx to Load environ:
+
+The script constructs an address to load the contents of the environ variable 
+(which contains environment variables of the process) into rdx.
+It involves manipulating rdx and rcx registers to form the address 0x7ffff7fbe600, 
+and then loading the value at this address into rdx.
+
+Executing /bin/env via execve:
+The script sets up and executes an execve syscall to run "/bin/env", which prints the environment variables. 
+The syscall number 0x3B (59 in decimal) is loaded into al (lower 8 bits of rax), and rdi, rsi, rdx 
+are used as arguments.
+
+After executing the command, the script sets up an exit syscall to terminate the process cleanly. 
+It moves the return code from execve into rdi and then executes exit with syscall number 0x3C (60 in decimal).
+
+Data Section:
+The end of the script contains data declarations (dq and dd). 
+These lines are used to align the stack correctly or to provide necessary space to avoid overwriting the 
+code with the stack contents.
+
+Exploit was turned into hex machine code using the make command which lsited the associated hex in the exploit.lst file.
+The hex values along with the calculated return address 0x7fffffffdff0 for selfcomp and 0x7fffffffdef0 for client.
+With 41 NOPs for selfcomp and 105 NOPs for client. These were found using the buffer size determined using the compromise1 string,
+filling with x's until the desired result to overflow the buffer. Then using the code size with the included return address and ending 2 lines
+in client. 
+
+-- Results -- 
+the bin/env was printed after running the files see Testing-Explanation for results.
+
+Objective 2: Recovering the associated password
+from quote server hash recovered 
+MD5=8afe37a36b4c052e197e98fd322ccb8f
+Used information found in Media file to develop a brute force bash script crack_pass.sh.
+The script aims to match a given MD5 hash ("8afe37a36b4c052e197e98fd322ccb8f") by trying different combinations of keywords and numbers.
+
+The script is trying to find a password that, when hashed with MD5, matches the target hash 8afe37a36b4c052e197e98fd322ccb8f.
+It uses an array named keywords containing various strings derived from provided information (like his name, firends names, cars, dogs, favourite color, birth month, etc).
+Specific Numbers to Append:
+
+A set of numbers (numbers) are defined, with different dates found in the document like his birthday and his age (26)
+Hash Checking Function (check_hash):
+check_hash is a function that takes a keyword, appends each number from the numbers array to it, forms a potential password, and then hashes this password.
+It compares the hash of each potential password against the target hash. If a match is found, it prints the password and exits.
+
+Main Loop:
+The script iterates through each keyword.
+For each keyword, it first checks if the keyword itself matches the hash (without appending any numbers).
+Then, it calls check_hash for each keyword to test all combinations of that keyword with the numbers.
+
+Output:
+For each tested combination, the script echoes the candidate string and its corresponding MD5 hash.
+If a match is found, it prints "Password found" with the matching string.
+If no match is found after all combinations are tested, it prints "Password not found."
+
+The password was found to be Purple26 (his favourite color and age) 

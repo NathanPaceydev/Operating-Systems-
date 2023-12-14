@@ -1,0 +1,114 @@
+
+Nathan Pacey 18njp
+Ashley Robb 19ar42
+
+Lab 3 Solution Description:
+The purpose of this lab was to implement a multi threaded solution to the producer consumer problem.
+This was done by having producer threads read the integer values from the input files place them in a shared buffer 
+and then have the consumer threads retrieve those values from the buffer before writing them to the output file.
+There are print statements throughout the implementation documenting what the threads are doing at each stage.
+Since the shared buffer has limited capacity the producers were made to wait while the buffer is full and 
+the consumers where made to wait while the buffer was empty.
+
+To make the given skeleton functional severial lines of code were added specificailly in the producer and consumer funcitons. 
+
+-- Producer Function: --
+Reads integers from a file line by line, and writes them to a shared buffer while ensuring proper synchronization with consumer threads. 
+The producer function takes a single argument, a void pointer, which will be cast to a pointer of the struct threadParm type,
+containing the the file name to read from and the thread number.
+Uses Local variables:
+prodParm: A pointer to struct threadParm, holding the thread's parameters.
+linelen: A constant representing the maximum length of a line that can be read from the file.
+line: A buffer to store a line read from the file.
+lineNo: A counter for the current line number.
+value: An integer to store the converted value from the line.
+
+The producer reads from the file line by line until the end of the file is reached.
+For each line, it converts the line to an integer using `atoi`.
+It then acquires a lock on the shared buffer using a mutex `pthread_mutex_lock(&mutex);`
+If the buffer is full, it waits on the full condition variable:
+`while (numElements == numSlots){
+        pthread_cond_wait(&full, &mutex);
+    }`
+
+Once there is space in the buffer, it writes the integer value to the buffer.
+It updates the head index using the modulo operator of `numSlots`and the numElements counter:
+`buffer[head] = value;
+    head = (head + 1) % numSlots;
+    numElements++;
+    `
+It signals the empty condition variable to wake up any waiting consumers `pthread_cond_signal(&empty);`
+Finally, it releases the lock on the shared buffer `pthread_mutex_unlock(&mutex);`
+The producer decrements the global counter of running producers using `pthread_mutex_lock(&mutex);` and `numProdRunning--;`
+If it is the last producer to finish, it broadcasts on the empty condition variable to wake up all waiting consumers
+ `if(numProdRunning == 0) pthread_cond_broadcast(&empty);`
+
+It releases the lock on the mutex `pthread_mutex_unlock(&mutex);`
+Then closes the input file.
+Finally returns NULL, indicating the end of the thread's execution.
+
+
+-- Consumer Function: --
+The consumer function reads integers from a shared buffer and writes them to a file, ensuring proper synchronization with producer threads. 
+It takes a single argument, a void pointer, which is cast to a pointer of the struct threadParm type. 
+This structure contains the file name to write to and the thread number.
+
+Local Variables:
+- consParm: A pointer to struct threadParm, holding the thread's parameters.
+- lineNo: A counter for the current line number.
+- value: An integer to store the value read from the buffer.
+- location: An integer to store the location in the buffer from which the value was read.
+
+The consumer operates in a continuous loop, performing the following actions:
+Acquires a lock on the shared buffer using `pthread_mutex_lock(&mutex);`.
+Waits on the empty condition variable if the buffer is empty and there are still producers running:
+   `while (numElements == 0 && numProdRunning > 0) {
+       pthread_cond_wait(&empty, &mutex);
+   }`
+
+If the buffer is empty and no producers are running, it releases the lock and breaks the loop:
+   `if (numElements == 0 && numProdRunning == 0) {
+       pthread_mutex_unlock(&mutex);
+       break;
+   }`
+
+Reads an integer value from the buffer, updates the tail index and the numElements counter:
+   `value = buffer[tail];
+   tail = (tail + 1) % numSlots;
+   numElements--;`
+
+Signals the full condition variable to wake up any waiting producers `pthread_cond_signal(&full);`.
+Releases the lock on the shared buffer `pthread_mutex_unlock(&mutex);`.
+Writes the integer value to the output file.
+After exiting the loop, the consumer closes the output file, prints a message indicating that it has finished, and returns NULL, 
+signaling the end of the thread's execution.
+
+
+-- General Implementation Details: --
+Shared Resources:
+Buffer: A circular buffer with a fixed size defined by numSlots.
+Indices: Two indices, head and tail, point to the next positions to write to and read from in the buffer, respectively.
+Counters: numElements tracks the number of items in the buffer, and numProdRunning keeps count of the producer threads that are still active.
+
+Synchronization Mechanisms:
+Mutex (mutex): Ensures mutual exclusion when threads access shared resources.
+Condition Variables (full and empty): Used to make threads wait when the buffer is full (full) or empty (empty).
+
+
+Special Features and Considerations:
+
+Pointers and Structures:
+Parameters to threads are passed using structures to encapsulate multiple pieces of data, 
+and pointers to these structures are cast to and from void* for compatibility with pthreads functions.
+
+Dynamic Memory and Resource Management:
+The program ensures that all acquired resources, such as file handles and mutexes, 
+are properly released or destroyed when they are no longer needed.
+
+Error Handling:
+Comprehensive error checking is implemented to handle potential issues such as file opening failures, 
+ensuring robustness.
+
+Synchronization and Concurrency:
+The use of mutexes and condition variables ensures that the program operates correctly in a concurrent environment, 
+preventing race conditions and ensuring data integrity.

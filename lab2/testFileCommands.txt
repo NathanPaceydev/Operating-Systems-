@@ -1,0 +1,23 @@
+Script started on 2023-10-06 00:43:32-04:00 [TERM="xterm-256color" TTY="/dev/pts/4" COLUMNS="66" LINES="29"]
+]0;18njp@elec377-tues-am-64: ~/elec377-tues-am-64/lab2[01;32m18njp@elec377-tues-am-64[00m:[01;34m~/elec377-tues-am-64/lab2[00m$ ./shell
+%> hello
+Hello 18njp
+%> g hello.c
+Error: Command Not Found!
+%> mkdir newdir
+%> ls
+hello.c initTestsplitCommandLine.txt testSplitCommand.txt Makefile newdir testAdditionalCommands.txt shell.c testEmbeddedCommands.txt shell hello testFileCommands.txt 
+%> rm    touch newfile
+%> ls
+hello.c initTestsplitCommandLine.txt testSplitCommand.txt Makefile newdir testAdditionalCommands.txt shell.c testEmbeddedCommands.txt shell newfile hello testFileCommands.txt 
+%> rm newfile
+%> ls
+hello.c initTestsplitCommandLine.txt testSplitCommand.txt Makefile newdir testAdditionalCommands.txt shell.c testEmbeddedCommands.txt shell hello testFileCommands.txt 
+%> rm -r newdir
+%> ls
+hello.c initTestsplitCommandLine.txt testSplitCommand.txt Makefile testAdditionalCommands.txt shell.c testEmbeddedCommands.txt shell hello testFileCommands.txt 
+%> exit
+]0;18njp@elec377-tues-am-64: ~/elec377-tues-am-64/lab2[01;32m18njp@elec377-tues-am-64[00m:[01;34m~/elec377-tues-am-64/lab2[00m$ exit
+exit
+
+Script done on 2023-10-06 00:45:07-04:00 [COMMAND_EXIT_CODE="0"]

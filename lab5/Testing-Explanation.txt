@@ -1,0 +1,212 @@
+Nathan Pacey 18njp
+Ashley Robb 19ar42
+
+Lab 5 Testing Explanation:
+
+--- Test 1. selfcomp compromise1 (x's) ------
+Filled in x's in the compromise 1 array until:
+./selfcomp 
+Segmentation fault
+
+The size of compromise1 is 160 since char[161] array needed to hold x's until segmentation fault
+
+18njp@elec377-tues-am-64:~/elec377-tues-am-64/lab5$ gdb selfcomp core
+
+#0  0x0000555555555203 in doTest () at selfcomp.c:135
+135     }
+(gdb) info registers
+rax            0x0                 0
+rbx            0x555555555210      93824992236048
+rcx            0x5555555592a0      93824992252576
+rdx            0x555555556030      93824992239664
+rsi            0x0                 0
+rdi            0x555555559370      93824992252784
+rbp            0x5a595857504f4e4d  0x5a595857504f4e4d
+rsp            0x7fffffffe088      0x7fffffffe088
+r8             0x0                 0
+r9             0x7ffff7dd3070      140737351856240
+r10            0x7ffff7fbbbe0      140737353858016
+r11            0x5555555592a0      93824992252576
+r12            0x555555555080      93824992235648
+r13            0x7fffffffe190      140737488347536
+
+Suggests that compromise1 string is indeed overwriting the saved base pointer (rbp) on the stack with the intended marker value.
+"MNOPWXYZ" in little endian hex 0x5a595857504f4e4d
+
+Then found the environ variable
+(gdb) print &environ
+$1 = (<data variable, no debug info> *) 0x7ffff7fbe600 <environ>
+
+
+-- Test 2. Shell Code selfcomp --
+Wrote the nasm assembly code as seen in exploit.o
+used make command to list the code in exploit.lst as hex 
+put the hex in compromise array and added enough padding (NOPs) to meet the array size of compromise1
+figured out the return adress from the  size of the shell code and the stack pointer rsp value
+code size which is 0x7fffffffe088 - 152 = 0x7fffffffdff0, making the compromise array hold 159 hex values char[159] with the NOPs included.
+
+/lab5$ make
+cc -g -fno-stack-protector   -c -o selfcomp.o selfcomp.c
+cc -g -z execstack -o selfcomp selfcomp.o
+/lab5$ ./selfcomp 
+SHELL=/bin/bash
+COLORTERM=truecolor
+TERM_PROGRAM_VERSION=1.84.2
+PWD=/home/18njp/elec377-tues-am-64/lab5
+KRB5CCNAME=FILE:/tmp/krb5cc_1005_HSwPDW
+LOGNAME=18njp
+XDG_SESSION_TYPE=tty
+VSCODE_GIT_ASKPASS_NODE=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/node
+MOTD_SHOWN=pam
+HOME=/home/18njp
+LANG=C.UTF-8
+LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
+GIT_ASKPASS=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/extensions/git/dist/askpass.sh
+SSH_CONNECTION=10.216.147.86 54096 192.168.101.181 22
+VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+LESSCLOSE=/usr/bin/lesspipe %s %s
+XDG_SESSION_CLASS=user
+TERM=xterm-256color
+LESSOPEN=| /usr/bin/lesspipe %s
+USER=18njp
+VSCODE_GIT_IPC_HANDLE=/run/user/1005/vscode-git-05b1c97979.sock
+SHLVL=1
+XDG_SESSION_ID=139
+XDG_RUNTIME_DIR=/run/user/1005
+SSH_CLIENT=10.216.147.86 54096 22
+VSCODE_GIT_ASKPASS_MAIN=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/extensions/git/dist/askpass-main.js
+XDG_DATA_DIRS=/usr/local/share:/usr/share:/var/lib/snapd/desktop
+BROWSER=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/bin/helpers/browser.sh
+PATH=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1005/bus
+TERM_PROGRAM=vscode
+VSCODE_IPC_HOOK_CLI=/run/user/1005/vscode-ipc-0870e9ed-4b9f-4c91-9f4d-0bfffe00b06d.sock
+_=./selfcomp
+OLDPWD=/home/18njp/elec377-tues-am-64
+MD5=8b7588b30498654be2626aac62ef37a3
+
+So the shell code successfully prints out the environment variables
+
+-- Test 3. client.c compromise1 (x's) --
+Same process was completed filling in the x's of compromise1 of client.c 
+except this time we have to run the quoteserv and client in seperate terminals to figure out the correct size.
+A size of 226 caused the return code 139 response from quoteserv.
+/lab5$ ./client 10000
+Port Number  10000
+/lab5$ ./quoteserv 10000
+ Return code: 139
+
+Found rsp using gdb:
+ Core was generated by `./quoteserv 10000'.
+Program terminated with signal SIGSEGV, Segmentation fault.
+#0  0x000055555555696a in ?? ()
+(gdb) info registers
+rax            0x7fffffffdfa0      140737488347040
+rbx            0x555555556bd0      93824992242640
+rcx            0x0                 0
+rdx            0x7fffffffe06d      140737488347245
+rsi            0x7fffffffdf80      140737488347008
+rdi            0x7fffffffdfa0      140737488347040
+rbp            0x5a595857504f4e4d  0x5a595857504f4e4d
+rsp            0x7fffffffdf88      0x7fffffffdf88
+r8             0xfefefefefefefeff  -72340172838076673
+r9             0xfefeffe077777777  -72339204449273993
+r10            0x7ffff7fc2810      140737353885712
+r11            0x7fffffffdf81      140737488347009
+r12            0x555555556460      93824992240736
+r13            0x7fffffffe1a0      140737488347552
+
+Therefore size of compromise should be 226-2=224
+used the same shell code with the updated NOPs and return adress to reflect the new stack.
+rsp found with gdb 0x7fffffffdf88 code length of 152
+0x7fffffffdf88-152 = 0x7fffffffdef0
+
+
+-- Test 4. shell code in client.c -- 
+Inserted the same shell code and adjsuted the padding to accound for the larger size and added 
+    0x0A,0x00 // new addition
+to the end of the shell code to exit
+used the found return address: 0x7fffffffdef0
+
+Ran the client and server on port 10000 and successfully printed environ variables
+/lab5$ ./quoteserv 10000
+ Return code: 0
+
+/lab5$ ./client 10000
+Port Number  10000
+SHELL=/bin/bash
+COLORTERM=truecolor
+TERM_PROGRAM_VERSION=1.84.2
+PWD=/home/18njp/elec377-tues-am-64/lab5
+KRB5CCNAME=FILE:/tmp/krb5cc_1005_HSwPDW
+LOGNAME=18njp
+XDG_SESSION_TYPE=tty
+VSCODE_GIT_ASKPASS_NODE=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/node
+MOTD_SHOWN=pam
+HOME=/home/18njp
+LANG=C.UTF-8
+LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
+GIT_ASKPASS=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/extensions/git/dist/askpass.sh
+SSH_CONNECTION=10.216.147.86 54096 192.168.101.181 22
+VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+LESSCLOSE=/usr/bin/lesspipe %s %s
+XDG_SESSION_CLASS=user
+TERM=xterm-256color
+LESSOPEN=| /usr/bin/lesspipe %s
+USER=18njp
+VSCODE_GIT_IPC_HANDLE=/run/user/1005/vscode-git-05b1c97979.sock
+SHLVL=1
+XDG_SESSION_ID=139
+XDG_RUNTIME_DIR=/run/user/1005
+SSH_CLIENT=10.216.147.86 54096 22
+VSCODE_GIT_ASKPASS_MAIN=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/extensions/git/dist/askpass-main.js
+XDG_DATA_DIRS=/usr/local/share:/usr/share:/var/lib/snapd/desktop
+BROWSER=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/bin/helpers/browser.sh
+PATH=/home/18njp/.vscode-server/bin/1a5daa3a0231a0fbba4f14db7ec463cf99d7768e/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1005/bus
+TERM_PROGRAM=vscode
+VSCODE_IPC_HOOK_CLI=/run/user/1005/vscode-ipc-f1e7d2cb-41d9-43a1-9535-4ca972e19907.sock
+_=./quoteserv
+MD5=8afe37a36b4c052e197e98fd322ccb8f
+
+Can see target hash is 8afe37a36b4c052e197e98fd322ccb8f associated to the password
+
+-- Test 5. Cracking the Password -- 
+Know information of the target Sam Gault:
+Connection out...18njp@elec377-tues-am-64:~/elec377-tues-am-64/lab5$ ./client 1000
+Port Number  1000
+The quote server by Sam Gault, SGaultSoft
+Hi 377 Student, your quote is:
+Life is what happens when you’re busy making other plans.
+  -- John Lennon
+
+Information known from the Media document:
+Dog name = Ruby
+Cars = Jetta, Focus
+Name = Sam Gaul
+Location = Modesto
+Company = SGaulSoft
+Twitter = SamGault
+Song released on Birthday = MMMBop by Hanson
+Released 1997
+Birthday = April 15, 1997
+Age = 26
+First Job = Cashier
+Favourite Food = Tacos , Pretzels
+Favourite Color = Purple
+First Pet's Name = Spot
+Favourite Restraunt = Jack Astor's
+Winter > Summer
+
+Password is a sequence of 32 hex digits
+Assume the password is a single word
+First letter caps, followed by a number
+
+Wrote a shell script crack_pass.sh to use this and other information to find the password associated with the hash.
+Can see all the combinations of passwords checked before the solution in pass-attempts.txt
+When prints commented out:
+-----
+./crack_pass.sh 
+Password found: Purple26
+
+Therefore the password associated with the hash is Purple26, his favourite color and his age.

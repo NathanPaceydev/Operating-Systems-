@@ -1,0 +1,49 @@
+Script started on 2023-10-06 00:22:35-04:00 [TERM="xterm-256color" TTY="/dev/pts/5" COLUMNS="66" LINES="29"]
+]0;18njp@elec377-tues-am-64: ~/elec377-tues-am-64/lab2[01;32m18njp@elec377-tues-am-64[00m:[01;34m~/elec377-tues-am-64/lab2[00m$ ./shell
+%> n M this is a normal sentan  ence
+5
+0: this
+1: is
+2: a
+3: normal
+4: sentence
+5: 0
+Error: Command Not Found!
+%> hello world
+2
+0: hello
+1: world
+2: 0
+Hello 18njp
+%> one
+1
+0: one
+1: 0
+Error: Command Not Found!
+%> multiple spa       spaces     here
+3
+0: multiple
+1: spaces
+2: here
+3: 0
+Error: Command Not Found!
+%>     leading spaces
+2
+0: leading
+1: spaces
+2: 0
+Error: Command Not Found!
+%> ending spaces       
+2
+0: ending
+1: spaces
+2: 0
+Error: Command Not Found!
+%> exit
+1
+0: exit
+1: 0
+]0;18njp@elec377-tues-am-64: ~/elec377-tues-am-64/lab2[01;32m18njp@elec377-tues-am-64[00m:[01;34m~/elec377-tues-am-64/lab2[00m$ exit
+exit
+
+Script done on 2023-10-06 00:24:37-04:00 [COMMAND_EXIT_CODE="0"]

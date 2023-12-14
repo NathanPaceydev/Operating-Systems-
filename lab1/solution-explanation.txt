@@ -1,0 +1,20 @@
+Nathan Pacey 18njp
+Ashley Robb 19ar42
+
+Lab 1 Description:
+The goal of this lab was to develop a kernel module (lab1) based on the outline of a kernel module provided by lab0 to gather process information taken from the process control block and display it in the proc directory (/proc/lab1). 
+
+Solution Explanation:
+To achieve this goal, we implemented the following items:
+
+We developed a kernel module named "lab1". Within the module's initialization function (lab1_init), we created a /proc/lab1 entry using the proc_create function. This entry acts as a point of access for retrieving process information. In case the creation of /proc/lab1 encounters memory allocation issues, the module returns an error.
+
+The core of our module is the lab1_show function, responsible for extracting and formatting process information. Leveraging the task_struct data structure, which contains vital attributes of the current process, we obtained the process's name, PID, PPID, and state.
+Specifically using current->items.
+Note that we used the 4 possible values of state TASK_RUNNING, TASK_INTERRUPTIBLE, TASK_UNINTERRUPTIBLE and TASK_STOPPED in conditionals to display the proper message for state.
+Accessing User ID (UID) and Group ID (GID) information was facilitated through the cred struct. We effectively extracted and formatted the Real UID, Effective UID, Saved UID, Real GID, Effective GID, and Saved GID from the cred struct and the extracted vals.
+Specifically using cred->items.val
+
+To enable the functionality of the /proc/lab1 entry, we defined a comprehensive file operations structure (lab1_fops). This structure contains function pointers that dictate the actions to be taken when the file is opened, read, or closed.
+
+During module unloading, the lab1_exit function takes care of removing the /proc/lab1 entry using the remove_proc_entry function, ensuring proper cleanup and resource deallocation.
